@@ -2,6 +2,15 @@ __author__ = 'cmotevasselani'
 
 
 class Constants:
+
+
+  PAUSE = 'pause'
+  PLAYING = 'playing'
+  REAL_TIME = 'real-time'
+  TURN_BASED = 'turn-based'
+
+
+
   # Inventory
   INVENTORY_WIDTH = 50
 

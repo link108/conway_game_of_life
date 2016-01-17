@@ -82,14 +82,16 @@ class Util:
         line)
       y += 1
     # show the player's stats
-    # state.status_panel.render_bar(1, 1, MapConstants.BAR_WIDTH, 'HP', state.player.fighter.hp,
+    # state.status_panel.render_bar(1, 1, MapConstants.BAR_WIDTH, 'game_map_id', state.game_map.game_map_id,
     #                               state.player.fighter.max_hp(state),
     #                               libtcod.light_red, libtcod.darker_red)
     # state.status_panel.render_bar(1, 2, MapConstants.BAR_WIDTH, 'MP', state.player.caster.mp,
     #                               state.player.caster.max_mp(state),
     #                               libtcod.light_blue, libtcod.darker_blue)
-    # libtcod.console_print_ex(state.status_panel.get_panel(), 1, 5, libtcod.BKGND_NONE, libtcod.LEFT,
-    #   'Player level: ' + str(state.player.level))
+    libtcod.console_print_ex(state.status_panel.get_panel(), 1, 4, libtcod.BKGND_NONE, libtcod.LEFT,
+                             'Mode: ' + str(state.game_type))
+    libtcod.console_print_ex(state.status_panel.get_panel(), 1, 5, libtcod.BKGND_NONE, libtcod.LEFT,
+      'Game map id:  ' + str(state.game_map.game_map_id))
     libtcod.console_print_ex(state.status_panel.get_panel(), 1, 6, libtcod.BKGND_NONE, libtcod.LEFT,
       'Turn: ' + str(state.turn))
     # blit the contents of "panel" to the root console

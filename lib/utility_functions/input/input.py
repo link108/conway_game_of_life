@@ -18,25 +18,29 @@ class Input:
     return key
 
   @staticmethod
-  def handle_keys(state):
-    key = Input.wait_for_keypress(state)
-    while key.vk == libtcod.KEY_SHIFT:
-      key = Input.wait_for_keypress(state)
+  def check_for_keypress(state):
+    key = libtcod.console_check_for_keypress(True)
+    if key.pressed == False:  # to prevent actions from being preformed twice
+      state.set_player_action(Constants.DID_NOT_TAKE_TURN)
+    return key
 
+  @staticmethod
+  def get_keypress(state, real_time):
+    if real_time:
+      return Input.check_for_keypress(state)
+    else:
+      return Input.wait_for_keypress(state)
+
+  @staticmethod
+  def handle_keys(state, real_time):
+    key = Input.get_keypress(state, real_time)
+    while key.vk == libtcod.KEY_SHIFT:
+      key = Input.get_keypress(state, real_time)
     # if key.vk == libtcod.KEY_ENTER and key.lalt:  # Toggle fullscreen
     #   libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
     # elif key.vk == libtcod.KEY_ESCAPE:
     #   state.set_player_action(Constants.EXIT)
     return Input.handle_targeting_keys(key, state)
-
-    # game_state = state.get_game_state()
-    # if game_state == Constants.PLAYING:
-    #   Input.handle_playing_keys(key, state)
-    # elif game_state == Constants.TARGETING:
-    #   Input.handle_targeting_keys(key, state)
-    # elif game_state == Constants.FOUND_TARGET:
-    #   state.set_game_state(Constants.FOUND_TARGET)
-
 
   @staticmethod
   def handle_targeting_keys(key, state):
@@ -61,7 +65,16 @@ class Input:
         state.status_panel.message("toggleing x: " + str(state.get_target_x()) + ', y: ' + str(state.get_target_y()))
         return Util.toggle_alive(state)
       elif key.c == ord('p'):
-        return "play"
+        if state.game_state == Constants.PAUSE:
+          state.status_panel.message('handle_targeting_keys: going from paused to playing')
+          state.game_state = Constants.PLAYING
+          return
+        elif state.game_state == Constants.PLAYING:
+          state.status_panel.message('handle_targeting_keys: going from playing to paused')
+          state.game_state = Constants.PAUSE
+          return
+        else:
+          state.status_panel.message('game state is: ' + str(state.game_state))
       else:
         state.set_player_action(Constants.NOT_VALID_KEY)
     elif key.vk == libtcod.KEY_ESCAPE:
