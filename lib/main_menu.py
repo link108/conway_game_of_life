@@ -24,13 +24,9 @@ class MainMenu:
     self.state.high_scores = HighScores()
 
   def main_menu(self):
-    # img = libtcod.image_load('rl_image.png')
-    # show the background image, at twice the regular console resolution
     while not libtcod.console_is_window_closed():
-      # libtcod.image_blit_2x(img, 0, 0, 0)
       choice = self.menu.display_menu_return_index('', ['Play a new game', 'Continue last game',
-                                                        'Custom Map Mode', 'High Scores', 'Quit'], 30,
-                                                   self.state.con)
+                                                        'Custom Map Mode', 'High Scores', 'Quit'], 30, self.state.con)
       if choice == 0:
         self.new_game()
         self.play_game()
@@ -64,19 +60,19 @@ class MainMenu:
 
   def edit_mode(self):
     self.state.game_state = Constants.PAUSE
+    self.state.game_map.game_maps[self.state.game_map.game_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = True
     while not libtcod.console_is_window_closed():
       self.state.turn += 1
       Util.render_all(self.state)
       libtcod.console_flush()
       Input.handle_keys(self.state, False)
       if self.state.game_state == Constants.PLAYING:
-        self.state.game_map.game_maps[self.state.game_map.game_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = False
-        self.state.game_map.game_maps[self.state.game_map.previous_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = False
         self.play_game()
-    self.state.status_panel.message('###### Turn ' + str(self.state.turn) + ' has ended')
 
   def play_game(self):
     self.state.game_state = Constants.PLAYING
+    self.state.game_map.game_maps[self.state.game_map.game_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = False
+    self.state.game_map.game_maps[self.state.game_map.previous_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = False
     while not libtcod.console_is_window_closed():
       sleep(0.20)
       self.state.turn += 1
@@ -84,10 +80,8 @@ class MainMenu:
       libtcod.console_flush()
       Input.handle_keys(self.state, True)
       if self.state.game_state == Constants.PAUSE:
-        self.state.game_map.game_maps[self.state.game_map.game_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = True
         self.edit_mode()
       self.state.game_map.process_map(self.state)
-    self.state.status_panel.message('###### Turn ' + str(self.state.turn) + ' has ended')
 
   def new_game(self):
     self.setup_game()

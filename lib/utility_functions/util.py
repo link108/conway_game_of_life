@@ -2,6 +2,7 @@ from lib.random_libs import libtcodpy as libtcod
 
 __author__ = 'cmotevasselani'
 
+import shelve
 from lib.constants.map_constants import MapConstants
 
 
@@ -20,6 +21,20 @@ class Util:
             if temp_x < len(game_map) and temp_y < len(game_map[temp_x]):
               adjacent_tiles.append(game_map[temp_x][temp_y])
     return adjacent_tiles
+
+  @staticmethod
+  def save_map(state):
+    file = shelve.open(Constants.SAVE_FILE, 'n')
+    file['game_map'] = self.state.game_map.game_map
+    file.close()
+
+  # def load_game(self):
+  #   self.state.game_map = Map(self.state)
+  #   file = shelve.open(Constants.SAVE_FILE, 'r')
+  #   self.state.game_map.game_map = file['game_map']
+  #   file.close()
+  #   self.initialize_fov(self.state.dungeon_level)
+
 
   @staticmethod
   def toggle_alive(state):
@@ -68,26 +83,19 @@ class Util:
         else:
           libtcod.console_set_char_background(state.con, x, y, MapConstants.COLOR_lIGHT_GROUND, libtcod.BKGND_SET)
         state.game_map.game_map[x][y].explored = True
-
-
     libtcod.console_blit(state.con, 0, 0, MapConstants.SCREEN_WIDTH, MapConstants.SCREEN_HEIGHT, 0, 0, 0)
     # prepare to render the GUI panel
     libtcod.console_set_default_background(state.status_panel.get_panel(), libtcod.black)
     libtcod.console_clear(state.status_panel.get_panel())
-    # print the game messages, one line at a time
     y = 1
     for (line, color) in state.status_panel.game_messages:
       libtcod.console_set_default_foreground(state.status_panel.get_panel(), color)
       libtcod.console_print_ex(state.status_panel.get_panel(), MapConstants.MSG_X, y, libtcod.BKGND_NONE, libtcod.LEFT,
         line)
       y += 1
-    # show the player's stats
     # state.status_panel.render_bar(1, 1, MapConstants.BAR_WIDTH, 'game_map_id', state.game_map.game_map_id,
     #                               state.player.fighter.max_hp(state),
     #                               libtcod.light_red, libtcod.darker_red)
-    # state.status_panel.render_bar(1, 2, MapConstants.BAR_WIDTH, 'MP', state.player.caster.mp,
-    #                               state.player.caster.max_mp(state),
-    #                               libtcod.light_blue, libtcod.darker_blue)
     libtcod.console_print_ex(state.status_panel.get_panel(), 1, 4, libtcod.BKGND_NONE, libtcod.LEFT,
                              'Mode: ' + str(state.game_type))
     libtcod.console_print_ex(state.status_panel.get_panel(), 1, 5, libtcod.BKGND_NONE, libtcod.LEFT,

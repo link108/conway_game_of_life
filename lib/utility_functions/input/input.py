@@ -32,6 +32,13 @@ class Input:
       return Input.wait_for_keypress(state)
 
   @staticmethod
+  def handle_keys_after_keypress(key, state, real_time):
+    if real_time:
+      return Input.handle_playing_keys(key, state)
+    else:
+      return Input.handle_targeting_keys(key, state)
+
+  @staticmethod
   def handle_keys(state, real_time):
     key = Input.get_keypress(state, real_time)
     while key.vk == libtcod.KEY_SHIFT:
@@ -40,7 +47,7 @@ class Input:
     #   libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
     # elif key.vk == libtcod.KEY_ESCAPE:
     #   state.set_player_action(Constants.EXIT)
-    return Input.handle_targeting_keys(key, state)
+    return Input.handle_keys_after_keypress(key, state, real_time)
 
   @staticmethod
   def handle_targeting_keys(key, state):
@@ -75,77 +82,31 @@ class Input:
           return
         else:
           state.status_panel.message('game state is: ' + str(state.game_state))
+      elif key.c == ord('s'):
+        Util.save_map(state)
       else:
         state.set_player_action(Constants.NOT_VALID_KEY)
-    elif key.vk == libtcod.KEY_ESCAPE:
-      state.set_game_state(Constants.PLAYING)
-    elif key.vk == libtcod.KEY_ENTER:
-      state.set_game_state(Constants.FOUND_TARGET)
-    else:
-      state.set_player_action(Constants.NOT_VALID_KEY)
 
   @staticmethod
   def handle_playing_keys(key, state):
     if key.vk == libtcod.KEY_CHAR:
-      if key.c == ord('k'):
-        Util.player_move_or_attack(state, 0, -1)
-      elif key.c == ord('j'):
-        Util.player_move_or_attack(state, 0, 1)
-      elif key.c == ord('h'):
-        Util.player_move_or_attack(state, -1, 0)
-      elif key.c == ord('l'):
-        Util.player_move_or_attack(state, 1, 0)
-      elif key.c == ord('y'):
-        Util.player_move_or_attack(state, -1, -1)
-      elif key.c == ord('u'):
-        Util.player_move_or_attack(state, 1, -1)
-      elif key.c == ord('b'):
-        Util.player_move_or_attack(state, -1, 1)
-      elif key.c == ord('n'):
-        Util.player_move_or_attack(state, 1, 1)
-      elif key.c == ord('.'):
-        pass
-      elif key.c == ord('v'):
-        Input.look(state)
-        state.set_player_action(Constants.NOT_VALID_KEY)
-      elif key.c == ord('i'):
-        chosen_item = state.player_inventory.inventory_menu(
-          'Press the key next to an item to use it, or any other to cancel.\n', state)
-        if chosen_item is not None:
-          chosen_item.use(state)
-          # else:
-          #     state.set_player_action(Constants.NOT_VALID_KEY)
-      elif key.c == ord('I'):
-        chosen_spell = state.player_spell_inventory.spell_menu(
-          'Press the key next to a spell to use it, or any other to cancel.\n', state)
-        if chosen_spell is not None:
-          chosen_spell.cast(state, state.player)
-      elif key.c == ord('d'):
-        chosen_item = state.player_inventory.inventory_menu(
-          'Press the key next to an item to drop it, or any other to cancel.\n', state)
-        if chosen_item is not None:
-          chosen_item.drop(state)
-      elif key.c == ord('g'):
-        # pick up an item
-        for object in state.objects:  # look for an item in the player's tile
-          if object.x == state.player.x and object.y == state.player.y and object.item:
-            object.item.pick_up(state)
-            break
-      elif key.c == ord('>'):
-        padded_player_coords = Util.get_padded_coords(state.player.x, state.player.y)
-        if padded_player_coords in state.stairs[state.dungeon_level][MapConstants.DOWN_STAIRS_OBJECT].keys():
-          state.set_player_action(Constants.NEXT_LEVEL)
-      elif key.c == ord('<'):
-        padded_player_coords = Util.get_padded_coords(state.player.x, state.player.y)
-        if padded_player_coords in state.stairs[state.dungeon_level][MapConstants.UP_STAIRS_OBJECT].keys():
-          state.set_player_action(Constants.PREVIOUS_LEVEL)
-      elif key.c == ord('c'):
-        # show character information
-        level_up_xp = Constants.LEVEL_UP_BASE + state.player.level * Constants.LEVEL_UP_FACTOR
-        Util.show_character_screen(state, level_up_xp)
-        Util.refresh(state)
+      if key.c == ord('p'):
+        if state.game_state == Constants.PAUSE:
+          state.status_panel.message('handle_targeting_keys: going from paused to playing')
+          state.game_state = Constants.PLAYING
+          return
+        elif state.game_state == Constants.PLAYING:
+          state.status_panel.message('handle_targeting_keys: going from playing to paused')
+          state.game_state = Constants.PAUSE
+          return
+        else:
+          state.status_panel.message('game state is: ' + str(state.game_state))
       else:
         state.set_player_action(Constants.NOT_VALID_KEY)
+
+
+
+
 
   @staticmethod
   def get_info(state, object):
