@@ -70,7 +70,6 @@ class MainMenu:
       libtcod.console_flush()
       Input.handle_keys(self.state, False)
       if self.state.game_state == Constants.PLAYING:
-        self.state.status_panel.message('play_game: Changing game type to playing')
         self.state.game_map.game_maps[self.state.game_map.game_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = False
         self.state.game_map.game_maps[self.state.game_map.previous_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = False
         self.play_game()
@@ -85,7 +84,7 @@ class MainMenu:
       libtcod.console_flush()
       Input.handle_keys(self.state, True)
       if self.state.game_state == Constants.PAUSE:
-        self.state.status_panel.message('play_game: Changing game type to paused')
+        self.state.game_map.game_maps[self.state.game_map.game_map_id][self.state.get_target_x()][self.state.get_target_y()].targeted = True
         self.edit_mode()
       self.state.game_map.process_map(self.state)
     self.state.status_panel.message('###### Turn ' + str(self.state.turn) + ' has ended')
